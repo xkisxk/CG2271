@@ -50,6 +50,7 @@ void stationary_mode_LED(void)
 {
 }
 
+//Front LED flash green when device is connected
 void connected_LED(void)
 {
 	for (int i = 0; i < REPEAT; i++) {

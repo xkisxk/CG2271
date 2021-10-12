@@ -88,6 +88,7 @@ void loop() {
   Serial.println(req);
 
   // Make the client's request.
+  //http://{ip_address}/{command}
   if (req.indexOf("status") != -1)
   {
     response = "WiFi Connected: " + ip_address;
