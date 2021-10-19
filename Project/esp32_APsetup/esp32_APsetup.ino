@@ -62,14 +62,6 @@ void setup() {
 }
 
 void loop() {
-
-  // If disconnected, try to reconnect every 30 seconds.
-  if ((WiFi.status() != WL_CONNECTED) && (millis() > wait30)) {
-    Serial.println("Trying to reconnect WiFi...");
-    WiFi.disconnect();
-    WiFi.begin(ssid, password);
-    wait30 = millis() + 30000;
-  }
   // Check if a client has connected..
   WiFiClient client = server.available();
   if (!client) {
@@ -154,7 +146,7 @@ void loop() {
   {
     response = "Self Drive Mode";
     Serial2.write(0x44); //0b0100 0100
-  }
+  } 
   
   client.println("HTTP/1.1 200 OK");
   client.println("Content-Type: text/html");

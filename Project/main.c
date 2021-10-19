@@ -14,7 +14,11 @@ int main (void) {
   // System Initialization
   SystemCoreClockUpdate();
 	
+	//Enable board LED
 	initLED();
+	//Enable Audio
+	initPWM();
+	//Enable UART
 	initUART2(BAUD_RATE);
   while (1) 
 	{
@@ -38,12 +42,13 @@ int main (void) {
 				led_control(OFF);
 				break;
 			case (WIFI_STATUS):
-				//connected_tune();
+				connected_tune();
 				connected_LED();
 				rx_data = 0x00;
 				break;
 			default:
 				led_control(OFF);
+				off_audio();
 		}
 	}
 }
