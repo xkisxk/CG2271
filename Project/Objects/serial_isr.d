@@ -7,3 +7,4 @@
 .\objects\serial_isr.o: C:\Users\xkisx\AppData\Local\Arm\Packs\ARM\CMSIS\5.6.0\CMSIS\Core\Include\cmsis_compiler.h
 .\objects\serial_isr.o: C:\Users\xkisx\AppData\Local\Arm\Packs\ARM\CMSIS\5.6.0\CMSIS\Core\Include\cmsis_armcc.h
 .\objects\serial_isr.o: .\RTE\Device\MKL25Z128xxx4\system_MKL25Z4.h
+.\objects\serial_isr.o: tAudio.h

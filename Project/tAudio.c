@@ -16,11 +16,12 @@ static void delay(volatile uint32_t nof) {
   }
 }
 
+// TODO: Change delay function such that the functions can end whenever
 void play_note(notes note, lengths length)
 {
 	TPM0->MOD = ClockFreq / freq[note];
-	TPM0_C0V = TPM0->MOD * 0.3;
-	delay(0x80000);
+	TPM0_C0V = TPM0->MOD;
+	delay(0x20000);
 	//osDelay(len[length]);
 }
 
@@ -33,8 +34,8 @@ void connected_tune(void)
 {
 	play_note(D4, semiquaver);
 	for (int i = 0; i < 2; i++) {
-		play_note(D4, semiquaver);
-		play_note(A4, semiquaver);
+		play_note(D5, semiquaver);
+		play_note(A5, semiquaver);
 	}
 	off_audio();
 }
@@ -73,7 +74,7 @@ void background_tune(void)
 	play_note(G4, crotchet);
 	
 	//melody loop
-	while(1) {
+	for (int i = 0; i < 2; i++) {
 		//bar 3
 		play_note(E5, triplet);
 		play_note(Rest, triplet);
@@ -103,7 +104,8 @@ void background_tune(void)
 		play_note(Eb5, triplet);
 		
 		//bar 5
-		play_note(E5, 2*triplet);
+		play_note(E5, triplet);
+		play_note(Rest, triplet);
 		play_note(G5, triplet);
 		
 		play_note(A5, triplet);
@@ -178,7 +180,7 @@ void background_tune(void)
 		
 		play_note(G5, crotchet);
 		
-		play_note(Rest, crotchet);
+		play_note(Rest, quaver);
 	}
 }
 
@@ -224,9 +226,12 @@ void ending_tune(void)
 	play_note(Bb5, triplet);
 	play_note(Bb5, triplet);
 	play_note(Bb5, triplet);
+	
+	//bar 4
+	play_note(C6, crotchet);
 }
 
-void initPWM(void)
+void initAudio(void)
 {
 	// Enable clock for PortD
 	SIM_SCGC5 |= SIM_SCGC5_PORTD_MASK;

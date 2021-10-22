@@ -9,3 +9,4 @@
 .\objects\main.o: .\RTE\Device\MKL25Z128xxx4\system_MKL25Z4.h
 .\objects\main.o: tAudio.h
 .\objects\main.o: tLed.h
+.\objects\main.o: tMotorControl.h

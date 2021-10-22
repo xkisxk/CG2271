@@ -417,6 +417,16 @@
               <FileType>5</FileType>
               <FilePath>.\Serial_ISR.h</FilePath>
             </File>
+            <File>
+              <FileName>tMotorControl.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\tMotorControl.h</FilePath>
+            </File>
+            <File>
+              <FileName>tMotorControl.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\tMotorControl.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

@@ -15,5 +15,5 @@ void play_note(notes note, lengths length);
 void connected_tune(void);
 void background_tune(void);
 void ending_tune(void);
-void initPWM(void);
+void initAudio(void);
 void off_audio(void);

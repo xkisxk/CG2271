@@ -77,7 +77,6 @@ void loop() {
   /////////////////////////////////////////////////////
   // Read the information sent by the client.
   String req = client.readStringUntil('\r');
-  Serial.println(req);
 
   // Make the client's request.
   //http://{ip_address}/{command}

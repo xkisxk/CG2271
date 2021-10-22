@@ -1,4 +1,5 @@
 #include "Serial_ISR.h"
+#include "tAudio.h"
 
 volatile uint8_t rx_data = 0;
 
@@ -53,6 +54,7 @@ void UART2_IRQHandler(void)
 {
 	if (UART2->S1 & UART_S1_RDRF_MASK) {
 		rx_data = UART2->D;
+		off_audio();
 	}
 }
 
