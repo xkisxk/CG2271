@@ -12,7 +12,7 @@ static void delay(volatile uint32_t nof) {
   }
 }
 
-void offRGB(void) 
+void offLED(void) 
 {
 	PTC->PDOR &= ~MASK(RED_LED);
 	PTC->PDOR &= ~(MASK(GREEN_LED) | MASK(GREEN_LED + 1) | MASK(GREEN_LED + 2) 

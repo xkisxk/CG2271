@@ -7,7 +7,7 @@
 typedef enum {RED, GREEN, OFF}colour_t;
 typedef enum {RUN, STOP} mode_t; 
 
-void offRGB(void);
+void offLED(void);
 //void led_control(colour_t colour);
 void led_red_control(mode_t mode); 
 void led_green_control(mode_t mode); 

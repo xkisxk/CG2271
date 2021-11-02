@@ -33,25 +33,17 @@ int main (void) {
 	{
 		switch (rx_data) {
 			case (RED_LED_ON):
-				led_control(RED);
+				led_red_control(RUN);
 				break;
 			case (RED_LED_OFF):
-				led_control(OFF);
+				led_red_control(STOP);
 				break;
 			case (GREEN_LED_ON):
-				led_control(GREEN);
+				led_green_control(RUN);
 				background_tune();
 				break;
 			case (GREEN_LED_OFF):
-				led_control(OFF);
-				off_audio();
-				break;
-			case (BLUE_LED_ON):
-				led_control(BLUE);
-				ending_tune();
-				break;
-			case (BLUE_LED_OFF):
-				led_control(OFF);
+				led_green_control(STOP);
 				off_audio();
 				break;
 			case (WIFI_STATUS):
@@ -60,7 +52,7 @@ int main (void) {
 				rx_data = 0x00;
 				break;
 			default:
-				led_control(OFF);
+				offLED(); 
 				off_audio();
 		}
 	}

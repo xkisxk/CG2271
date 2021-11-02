@@ -141,11 +141,31 @@ void loop() {
     response = "MOVING BACKWARD";
     Serial2.write(0x43); //0b0100 0011
   }
+  if (req.indexOf("forwardLeft") != -1)
+  {
+    response = "MOVING FORWARD AND LEFT";
+    Serial2.write(0x44); //0b0100 0011
+  }
+  if (req.indexOf("forwardRight") != -1)
+  {
+    response = "MOVING FORWARD AND RIGHT";
+    Serial2.write(0x45); //0b0100 0011
+  }
+  if (req.indexOf("reverseLeft") != -1)
+  {
+    response = "MOVING BACKWARD AND LEFT";
+    Serial2.write(0x46); //0b0100 0011
+  }
+  if (req.indexOf("reverseRight") != -1)
+  {
+    response = "MOVING BACKWARD AND RIGHT";
+    Serial2.write(0x47); //0b0100 0011
+  }
   if (req.indexOf("selfDriveMode") != -1)
   {
     response = "Self Drive Mode";
-    Serial2.write(0x44); //0b0100 0100
-  } 
+    Serial2.write(0x48); //0b0100 0100
+  }
   
   client.println("HTTP/1.1 200 OK");
   client.println("Content-Type: text/html");

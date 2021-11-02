@@ -54,7 +54,6 @@ void UART2_IRQHandler(void)
 {
 	if (UART2->S1 & UART_S1_RDRF_MASK) {
 		rx_data = UART2->D;
-		off_audio();
 	}
 }
 
