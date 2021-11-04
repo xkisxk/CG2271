@@ -18,6 +18,27 @@ void greenFlash() {
 		osDelay(GREEN_FLASH);
 	}
 }
+			
+void led_green_control(mode_t mode) { 
+	switch(mode) { 
+		case (RUN): 
+			// running mode 
+			for (int i = 0; i < NUM_GREEN_LED; i++) { 
+				PTC->PDOR |= MASK(GREEN_LED + i); // set current LED to ON
+				delay(0x80000); 
+				PTC->PDOR &= ~MASK(GREEN_LED + i);  
+			} 
+			break; 
+		case (STOP): 
+			// light up all 
+			for (int i = 0; i < NUM_GREEN_LED; i++) { 
+				PTC->PDOR |= MASK(GREEN_LED + i); // set current LED to ON
+				delay(0x1000); 
+				PTC->PDOR &= ~MASK(GREEN_LED + i); 
+			} 		
+			break; 
+	} 
+} 	
 
 void runningModeRed(void)
 {
@@ -76,3 +97,4 @@ void initLED(void) {
  PTA->PDDR |= MASK(LED_R);
  PTC->PDDR |= (MASK(LED_G3) | MASK(LED_G4) | MASK(LED_G5) | MASK(LED_G6) | MASK(LED_G7) | MASK(LED_G8) | MASK(LED_G9) | MASK(LED_G10));
 }
+*/
