@@ -53,13 +53,9 @@ void tAudio() {
 			background_tune();
 		} else if (command == END_CHALLENGE) {
 			ending_tune();
-		} 
-		/*
-		else if (command != STOP) {
+		} else if (command == SELF_DRIVE) {
 			background_tune();
-		} */
-		
-		else {
+		} else {
 			off_audio();
 		}
 	}
@@ -87,6 +83,10 @@ void tMotor() {
 			leftreverse();
 		} else if (command == MOVE_BACKWARD_RIGHT) {
 			rightreverse();
+		} else if (command == SELF_DRIVE) {
+			selfDrive();
+			command = END_CHALLENGE;
+			osMessageQueuePut(tAudio, &command, NULL, 0);
 		} else {  //STOP
 			stopMotors();
 		}
@@ -109,7 +109,7 @@ void tGreen() {
 			osMessageQueuePut(tGreenMsg, &command, NULL, 0);
 		} else if (command == MOVE_FORWARD || command == MOVE_BACKWARD || command == MOVE_FORWARD_LEFT
 			|| command == MOVE_FORWARD_RIGHT || command == MOVE_BACKWARD_LEFT || command == MOVE_BACKWARD_RIGHT
-			|| command == TURN_LEFT || command == TURN_RIGHT){
+			|| command == TURN_LEFT || command == TURN_RIGHT || command == SELF_DRIVE){
 			ledChoice = (ledChoice + 1) % 8;
 			runningModeGreen(ledChoice);
 		}			
@@ -134,7 +134,7 @@ void tRed() {
 			//red flash on and off with period 0.5sec
 		} else if (command == MOVE_FORWARD || command == MOVE_BACKWARD || command == MOVE_FORWARD_LEFT
 			|| command == MOVE_FORWARD_RIGHT || command == MOVE_BACKWARD_LEFT || command == MOVE_BACKWARD_RIGHT
-			|| command == TURN_LEFT || command == TURN_RIGHT){
+			|| command == TURN_LEFT || command == TURN_RIGHT || command == SELF_DRIVE){
 			runningModeRed();
 		}	
 			//else if(command != NODATA) { // If the robot is moving.
@@ -151,7 +151,7 @@ void tBrain() {
 		//send uartData to corresponding thread
 		osMessageQueuePut(tMotorMsg, &uartData, NULL, 0);
 		
-		if (uartData == END_CHALLENGE || uartData == WIFI_STATUS) {
+		if (uartData == END_CHALLENGE || uartData == WIFI_STATUS || uartData == SELF_DRIVE) {
 			osMessageQueuePut(tAudioMsg, &uartData, NULL, 0);
 		}
 		
