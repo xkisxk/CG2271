@@ -43,7 +43,6 @@ void UART2_IRQHandler(void)
 }
 
 void tAudio() {
-	//TODO: add audio code
 	uint8_t command = NODATA;
 	for(;;) {
 		//receive mesage and put it into command
@@ -51,12 +50,17 @@ void tAudio() {
 
 		if(command == WIFI_STATUS) {
 			connected_tune();
-			command = NODATA;
+			background_tune();
 		} else if (command == END_CHALLENGE) {
 			ending_tune();
-			command = NODATA;
-		} else {
+		} 
+		/*
+		else if (command != STOP) {
 			background_tune();
+		} */
+		
+		else {
+			off_audio();
 		}
 	}
 }
@@ -96,7 +100,7 @@ void tGreen() {
 	for(;;) {
 		osMessageQueueGet(tGreenMsg, &command, NULL, 0);
 
-		if (command == STOP) {     // If robot is stationary
+		if (command == STOP || command == END_CHALLENGE) {     // If robot is stationary
 			stationaryModeGreen();
 		} else if(command == WIFI_STATUS) {     //On connection with bluetooth.
 			//green flash twice
@@ -125,7 +129,7 @@ void tRed() {
 	for(;;) {
 		osMessageQueueGet(tRedMsg, &command, NULL, 0);
 
-		if (command == STOP) {     // If robot is stationary
+		if (command == STOP || command == END_CHALLENGE || command == WIFI_STATUS) {     // If robot is stationary
 			stationaryModeRed();
 			//red flash on and off with period 0.5sec
 		} else if (command == MOVE_FORWARD || command == MOVE_BACKWARD || command == MOVE_FORWARD_LEFT
@@ -146,7 +150,11 @@ void tBrain() {
 		osMessageQueueGet(tBrainMsg, &uartData, NULL, osWaitForever);
 		//send uartData to corresponding thread
 		osMessageQueuePut(tMotorMsg, &uartData, NULL, 0);
-    osMessageQueuePut(tAudioMsg, &uartData, NULL, 0);
+		
+		if (uartData == END_CHALLENGE || uartData == WIFI_STATUS) {
+			osMessageQueuePut(tAudioMsg, &uartData, NULL, 0);
+		}
+		
     osMessageQueuePut(tGreenMsg, &uartData, NULL, 0);
 		osMessageQueuePut(tRedMsg, &uartData, NULL, 0);
 	}
