@@ -11,6 +11,7 @@
 #define NODATA 0x00
 
 #define WIFI_STATUS 0x36
+#define END_CHALLENGE 0x37
 
 //motor commands
 #define MOVE_FORWARD 0x40
@@ -32,9 +33,32 @@ osMessageQueueId_t tAudioMsg, tMotorMsg, tGreenMsg, tRedMsg, tBrainMsg;
 uint8_t uartData;
 
 //TODO: add UART IRQ handler??
+//UART2 Interrupt Request Handler
+void UART2_IRQHandler(void) 
+{
+	if (UART2->S1 & UART_S1_RDRF_MASK) {
+		rx_data = UART2->D;
+		osMessageQueuePut(tBrainMsg, &rx_data, NULL, 0);
+	}
+}
 
 void tAudio() {
 	//TODO: add audio code
+	uint8_t command = NODATA;
+	for(;;) {
+		//receive mesage and put it into command
+		osMessageQueueGet(tAudioMsg, &command, NULL, osWaitForever);
+
+		if(command == WIFI_STATUS) {
+			connected_tune();
+			command = NODATA;
+		} else if (command == END_CHALLENGE) {
+			ending_tune();
+			command = NODATA;
+		} else {
+			background_tune();
+		}
+	}
 }
 
 void tMotor() {
@@ -62,33 +86,36 @@ void tMotor() {
 		} else {  //STOP
 			stopMotors();
 		}
-		
 	}
 }
 
 void tGreen() {
 	uint8_t command = NODATA;
-	int ledchoice = 0;
+	int ledChoice = 0;
 	
 	for(;;) {
 		osMessageQueueGet(tGreenMsg, &command, NULL, 0);
 
-		if (command == STOP || !(command == MOVE_FORWARD || command == MOVE_BACKWARD || command == MOVE_FORWARD_LEFT
-			|| command == MOVE_FORWARD_RIGHT || command == MOVE_BACKWARD_LEFT || command == MOVE_BACKWARD_RIGHT
-			|| command == TURN_LEFT || command == TURN_RIGHT)) {     // If robot is stationary
+		if (command == STOP) {     // If robot is stationary
 			stationaryModeGreen();
-			//red flash on and off with period 0.5sec
 		} else if(command == WIFI_STATUS) {     //On connection with bluetooth.
 			//green flash twice
 			greenFlash();
 			command = STOP;		
 			osMessageQueuePut(tGreenMsg, &command, NULL, 0);
-		} else if(command != NODATA) { // If the robot is moving.
-			ledchoice = (ledchoice + 1) % 8;
-			runningModeGreen(ledchoice);
+		} else if (command == MOVE_FORWARD || command == MOVE_BACKWARD || command == MOVE_FORWARD_LEFT
+			|| command == MOVE_FORWARD_RIGHT || command == MOVE_BACKWARD_LEFT || command == MOVE_BACKWARD_RIGHT
+			|| command == TURN_LEFT || command == TURN_RIGHT){
+			ledChoice = (ledChoice + 1) % 8;
+			runningModeGreen(ledChoice);
+		}			
+		
+		//else if(command != NODATA) { // If the robot is moving.
+	//		ledchoice = (ledchoice + 1) % 8;
+		//	runningModeGreen(ledchoice);
 			//green one at a time
 			//red flash on and off with period 1.0sec
-		}
+		//}
 	}
 }
 
@@ -98,20 +125,22 @@ void tRed() {
 	for(;;) {
 		osMessageQueueGet(tRedMsg, &command, NULL, 0);
 
-		if (command == STOP || !(command == MOVE_FORWARD || command == MOVE_BACKWARD || command == MOVE_FORWARD_LEFT
-			|| command == MOVE_FORWARD_RIGHT || command == MOVE_BACKWARD_LEFT || command == MOVE_BACKWARD_RIGHT
-			|| command == TURN_LEFT || command == TURN_RIGHT)) {     // If robot is stationary
+		if (command == STOP) {     // If robot is stationary
 			stationaryModeRed();
 			//red flash on and off with period 0.5sec
-		} else if(command != NODATA) { // If the robot is moving.
+		} else if (command == MOVE_FORWARD || command == MOVE_BACKWARD || command == MOVE_FORWARD_LEFT
+			|| command == MOVE_FORWARD_RIGHT || command == MOVE_BACKWARD_LEFT || command == MOVE_BACKWARD_RIGHT
+			|| command == TURN_LEFT || command == TURN_RIGHT){
 			runningModeRed();
+		}	
+			//else if(command != NODATA) { // If the robot is moving.
+			//runningModeRed();
 			//red flash on and off with period 1.0sec
-		}
+		//}
 	}
 }
 
 void tBrain() {
-	uint8_t data = NODATA;
 	for(;;) {
 		//get message from UART IRQ and put it in uartData for every other thread to access
 		osMessageQueueGet(tBrainMsg, &uartData, NULL, osWaitForever);
@@ -129,8 +158,10 @@ int main (void) {
 	
 	//Enable board LED
 	initLED();
+	
 	//Enable Audio
 	initAudio();
+	
 	//Enable UART
 	initUART2(BAUD_RATE);
 	//Enable motor
@@ -138,7 +169,6 @@ int main (void) {
  
 	osKernelInitialize();            
 
-	
 	osThreadNew(tBrain, NULL, NULL);    
   osThreadNew(tMotor, NULL, NULL);   
   osThreadNew(tAudio, NULL, NULL);    

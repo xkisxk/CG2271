@@ -53,6 +53,7 @@ void setup() {
   WiFi.softAP(ssid, password);
   IPAddress myIP = WiFi.softAPIP();
   Serial.print("AP IP address: ");
+  ip_address = myIP.toString();
   Serial.println(myIP);
   Serial.print("Local IP Address: ");
   Serial.println(WiFi.localIP().toString());
@@ -84,6 +85,11 @@ void loop() {
   {
     response = "WiFi Connected: " + ip_address;
     Serial2.write(0x36);
+  }
+  if (req.indexOf("endChallenge") != -1)
+  {
+    response = "Challenge Ended!";
+    Serial2.write(0x37);
   }
   if (req.indexOf("onRed") != -1)
   {
@@ -141,11 +147,36 @@ void loop() {
     response = "MOVING BACKWARD";
     Serial2.write(0x43); //0b0100 0011
   }
+  if (req.indexOf("forwardLeft") != -1)
+  {
+    response = "MOVING FORWARD AND LEFT";
+    Serial2.write(0x44); //0b0100 0011
+  }
+  if (req.indexOf("forwardRight") != -1)
+  {
+    response = "MOVING FORWARD AND RIGHT";
+    Serial2.write(0x45); //0b0100 0011
+  }
+  if (req.indexOf("reverseLeft") != -1)
+  {
+    response = "MOVING BACKWARD AND LEFT";
+    Serial2.write(0x46); //0b0100 0011
+  }
+  if (req.indexOf("reverseRight") != -1)
+  {
+    response = "MOVING BACKWARD AND RIGHT";
+    Serial2.write(0x47); //0b0100 0011
+  }
+  if (req.indexOf("stop") != -1)
+  {
+    response = "STOP";
+    Serial2.write(0x48);
+  }
   if (req.indexOf("selfDriveMode") != -1)
   {
     response = "Self Drive Mode";
-    Serial2.write(0x44); //0b0100 0100
-  } 
+    Serial2.write(0x49);
+  }
   
   client.println("HTTP/1.1 200 OK");
   client.println("Content-Type: text/html");
