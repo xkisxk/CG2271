@@ -125,7 +125,7 @@ void tRed() {
 	for(;;) {
 		osMessageQueueGet(tRedMsg, &command, NULL, 0);
 
-		if (command == STOP) {     // If robot is stationary
+		if (command == STOP || command == WIFI_STATUS) {     // If robot is stationary
 			stationaryModeRed();
 			//red flash on and off with period 0.5sec
 		} else if (command == MOVE_FORWARD || command == MOVE_BACKWARD || command == MOVE_FORWARD_LEFT
