@@ -1,4 +1,5 @@
 #include "tMotorControl.h"
+#include "tUltrasonic.h"
 #include "MKL25Z4.h"
 
 static void delay(volatile uint32_t nof) {
@@ -170,10 +171,13 @@ void rightreverse() {
 }
 
 void selfDrive() {
+	int flag = 0;
 	forward();
 	//TODO: Add ultrasonic flag to tell it when to stop
-	while(1) {
+	while(!flag) {
+			flag = executeUltrasonic();
 	}
+	flag = 0;
 	left();
 	//TODO: Calibrate time to turn right angle
 	delay(0x80000);
@@ -204,8 +208,10 @@ void selfDrive() {
 	delay(0x80000);
 	
 	forward();
-	while(1) {
+	while(!flag) {
+			flag = executeUltrasonic();
 	}
+	flag = 0;
 	
 	stopMotors();
 	
