@@ -53,6 +53,7 @@ void setup() {
   WiFi.softAP(ssid, password);
   IPAddress myIP = WiFi.softAPIP();
   Serial.print("AP IP address: ");
+  ip_address = myIP.toString();
   Serial.println(myIP);
   Serial.print("Local IP Address: ");
   Serial.println(WiFi.localIP().toString());
@@ -84,6 +85,11 @@ void loop() {
   {
     response = "WiFi Connected: " + ip_address;
     Serial2.write(0x36);
+  }
+  if (req.indexOf("endChallenge") != -1)
+  {
+    response = "Challenge Ended!";
+    Serial2.write(0x37);
   }
   if (req.indexOf("onRed") != -1)
   {

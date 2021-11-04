@@ -2,7 +2,7 @@
 #define PTD1_Pin 1
 #define ClockFreq 375000
 #define SIZE 25
-#define duration 1000
+#define duration 24
 
 typedef enum {Rest, 
 																	 G3, Ab3,     Bb3,

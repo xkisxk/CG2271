@@ -19,6 +19,7 @@
 #define BLUE_LED_ON 0x35
 
 #define WIFI_STATUS 0x36
+#define END_CHALLENGE 0x37
 
 //motor commands
 #define MOVE_FORWARD 0x40
@@ -40,9 +41,32 @@ osMessageQueueId_t tAudioMsg, tMotorMsg, tLEDMsg, tBrainMsg;
 uint8_t uartData;
 
 //TODO: add UART IRQ handler??
+//UART2 Interrupt Request Handler
+void UART2_IRQHandler(void) 
+{
+	if (UART2->S1 & UART_S1_RDRF_MASK) {
+		rx_data = UART2->D;
+		osMessageQueuePut(tBrainMsg, &rx_data, NULL, 0);
+	}
+}
 
 void tAudio() {
 	//TODO: add audio code
+	uint8_t command = NODATA;
+	for(;;) {
+		//receive mesage and put it into command
+		osMessageQueueGet(tAudioMsg, &command, NULL, osWaitForever);
+
+		if(command == WIFI_STATUS) {
+			connected_tune();
+			command = NODATA;
+		} else if (command == END_CHALLENGE) {
+			ending_tune();
+			command = NODATA;
+		} else {
+			background_tune();
+		}
+	}
 }
 
 void tMotor() {
@@ -70,7 +94,6 @@ void tMotor() {
 		} else {  //STOP
 			stopMotors();
 		}
-		
 	}
 }
 
@@ -84,7 +107,6 @@ void tLED() {
 }
 
 void tBrain() {
-	uint8_t data = NODATA;
 	for(;;) {
 		//get message from UART IRQ and put it in uartData for every other thread to access
 		osMessageQueueGet(tBrainMsg, &uartData, NULL, osWaitForever);
@@ -110,7 +132,6 @@ int main (void) {
  
 	osKernelInitialize();            
 
-	
 	osThreadNew(tBrain, NULL, NULL);    
   osThreadNew(tMotor, NULL, NULL);   
   osThreadNew(tAudio, NULL, NULL);    
@@ -123,31 +144,4 @@ int main (void) {
 		
 	osKernelStart();                     
 	for (;;) {}
-		
-		/*
-		switch (rx_data) {
-			case (RED_LED_ON):
-				led_red_control(RUN);
-				break;
-			case (RED_LED_OFF):
-				led_red_control(STOP);
-				break;
-			case (GREEN_LED_ON):
-				led_green_control(RUN);
-				background_tune();
-				break;
-			case (GREEN_LED_OFF):
-				led_green_control(STOP);
-				off_audio();
-				break;
-			case (WIFI_STATUS):
-				connected_tune();
-				connected_LED();
-				rx_data = 0x00;
-				break;
-			default:
-				offLED(); 
-				off_audio();
-		}
-		*/
 }

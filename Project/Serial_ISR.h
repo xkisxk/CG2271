@@ -5,7 +5,7 @@
 #define BAUD_RATE 9600
 #define UART2_INT_PRIO 128
 
-extern volatile uint8_t rx_data;
+extern uint8_t rx_data;
 
 void initUART2(uint32_t baud_rate);
 void UART2_IRQHandler(void);

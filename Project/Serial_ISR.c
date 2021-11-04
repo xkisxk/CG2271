@@ -1,7 +1,7 @@
 #include "Serial_ISR.h"
-#include "tAudio.h"
+#include "cmsis_os2.h"
 
-volatile uint8_t rx_data = 0;
+uint8_t rx_data = 0;
 
 void initUART2(uint32_t baud_rate)
 {
@@ -47,14 +47,6 @@ void initUART2(uint32_t baud_rate)
 	
 	// Set UART2 to enable transmitter and receiver
 	UART2->C2 |= ((UART_C2_TE_MASK) | (UART_C2_RE_MASK));
-}
-
-//UART2 Interrupt Request Handler
-void UART2_IRQHandler(void) 
-{
-	if (UART2->S1 & UART_S1_RDRF_MASK) {
-		rx_data = UART2->D;
-	}
 }
 
 void UART2_Transmit_Poll(uint8_t data)
