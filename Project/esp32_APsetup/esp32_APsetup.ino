@@ -167,10 +167,15 @@ void loop() {
     response = "MOVING BACKWARD AND RIGHT";
     Serial2.write(0x47); //0b0100 0011
   }
+  if (req.indexOf("stop") != -1)
+  {
+    response = "STOP";
+    Serial2.write(0x48);
+  }
   if (req.indexOf("selfDriveMode") != -1)
   {
     response = "Self Drive Mode";
-    Serial2.write(0x48); //0b0100 0100
+    Serial2.write(0x49);
   }
   
   client.println("HTTP/1.1 200 OK");
