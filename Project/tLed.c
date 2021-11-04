@@ -2,40 +2,20 @@
 #include "cmsis_os2.h"                  // ::CMSIS:RTOS2
 #include "tLed.h"
 
-#define DELAY 500
-#define REPEAT 2
+uint8_t greenLeds[8] = {LED_G3, LED_G4, LED_G5, LED_G6, LED_G7, LED_G8, LED_G9, LED_G10};
 
-static void delay(volatile uint32_t nof) {
-  while(nof!=0) {
-    __asm("NOP");
-    nof--;
-  }
-}
-
-void offRGB(void) 
+void offRed(void) 
 {
-	PTC->PDOR &= ~MASK(RED_LED);
-	PTC->PDOR &= ~(MASK(GREEN_LED) | MASK(GREEN_LED + 1) | MASK(GREEN_LED + 2) 
-										| MASK(GREEN_LED + 3) | MASK(GREEN_LED + 4) | MASK(GREEN_LED + 5) 
-										| MASK(GREEN_LED + 6) | MASK(GREEN_LED + 7));
+	PTA->PDOR &= ~MASK(LED_R);
 }
 
-void led_red_control(mode_t mode) { 
-	switch(mode) { 
-		case (RUN): 
-			// 500ms on, 500ms off
-			PTC->PDOR |= MASK(RED_LED); 
-			delay(0x80000); 
-			PTC->PDOR &= ~MASK(RED_LED); 
-			delay(0x80000); 	
-			break; 
-		case (STOP): 
-			// 250ms on, 250ms off 
-			PTC->PDOR |= MASK(RED_LED); 
-			delay(0x80000); 
-			PTC->PDOR &= ~MASK(RED_LED); 
-			delay(0x80000); 	
-			break; 
+void greenFlash() {
+	int i;
+	for(i = 0; i<2; i++) {
+		PTC->PDOR |= (MASK(LED_G3) | MASK(LED_G4) | MASK(LED_G5) | MASK(LED_G6) | MASK(LED_G7) | MASK(LED_G8) | MASK(LED_G9) | MASK(LED_G10));
+		osDelay(GREEN_FLASH);
+		PTC->PDOR &= (~MASK(LED_G3) & ~MASK(LED_G4) & ~MASK(LED_G5) & ~MASK(LED_G6) & ~MASK(LED_G7) & ~MASK(LED_G8) & ~MASK(LED_G9) & ~MASK(LED_G10));
+		osDelay(GREEN_FLASH);
 	}
 }
 			
@@ -60,56 +40,61 @@ void led_green_control(mode_t mode) {
 	} 
 } 	
 
-//Front LED flash green twice when device is connected
-void connected_LED(void)
+void runningModeRed(void)
 {
-	for (int i = 0; i < REPEAT; i++) {
-		PTC->PDOR |= (MASK(GREEN_LED) | MASK(GREEN_LED + 1) | MASK(GREEN_LED + 2) 
-										| MASK(GREEN_LED + 3) | MASK(GREEN_LED + 4) | MASK(GREEN_LED + 5) 
-										| MASK(GREEN_LED + 6) | MASK(GREEN_LED + 7));
-		delay(0x80000);
-		PTC->PDOR &= ~(MASK(GREEN_LED) | MASK(GREEN_LED + 1) | MASK(GREEN_LED + 2) 
-										| MASK(GREEN_LED + 3) | MASK(GREEN_LED + 4) | MASK(GREEN_LED + 5) 
-										| MASK(GREEN_LED + 6) | MASK(GREEN_LED + 7));	
-		delay(0x80000);
-	}
+	//RED
+	PTA -> PDOR |= MASK(LED_R);
+	osDelay(RED_STOP);
+	PTA -> PDOR &= ~MASK(LED_R);
+	osDelay(RED_STOP);
 }
 
-void initLED(void)
+void runningModeGreen(int ledchoice)
 {
-	// Enable Clock to PORTC
-	SIM->SCGC5 |= (SIM_SCGC5_PORTC_MASK);
-	
-	// Configure MUX settings to make all 3 pins GPIO
-	PORTC->PCR[RED_LED] &= ~PORT_PCR_MUX_MASK;
-	PORTC->PCR[RED_LED] |= PORT_PCR_MUX(1);
-	for (int i = 0; i < NUM_GREEN_LED; i++) { 		
-		PORTC->PCR[GREEN_LED + i] &= ~PORT_PCR_MUX_MASK;
-		PORTC->PCR[GREEN_LED + i] |= PORT_PCR_MUX(1);
-	} 
-	
-	// Set Data Direction Registers for PortC
-	PTC->PDDR |= MASK(RED_LED) | MASK(GREEN_LED) | MASK(GREEN_LED + 1) | MASK(GREEN_LED + 2) 
-										| MASK(GREEN_LED + 3) | MASK(GREEN_LED + 4) | MASK(GREEN_LED + 5) 
-										| MASK(GREEN_LED + 6) | MASK(GREEN_LED + 7);
+	PTD -> PDOR |= MASK(greenLeds[ledchoice]);
+	osDelay(GREEN_MOVE);
+	PTD -> PDOR &= ~MASK(greenLeds[ledchoice]);
 }
 
-/*
-void led_control(colour_t colour)
+void stationaryModeRed(void)
 {
-	switch(colour)	
-	{
-		case (RED):
-			PTC->PDOR = MASK(GREEN_LED);
-			PTC->PDOR &= ~(MASK(RED_LED));
-			break;
-		case (GREEN):
-			PTC->PDOR = MASK(RED_LED);
-			PTB->PDOR &= ~(MASK(GREEN_LED));
-			break;
-		case (OFF):
-			offRGB();
-			break;
-	}
+	PTA -> PDOR |= MASK(LED_R);
+	osDelay(RED_MOVE);
+	PTA -> PDOR &= ~MASK(LED_R);
+	osDelay(RED_MOVE);
+}
+
+void stationaryModeGreen(void)
+{
+		PTC->PDOR |= (MASK(LED_G3) | MASK(LED_G4) | MASK(LED_G5) | MASK(LED_G6) | MASK(LED_G7) | MASK(LED_G8) | MASK(LED_G9) | MASK(LED_G10));
+}
+
+void initLED(void) {
+
+ // Configure MUX settings for rear led
+ PORTA->PCR[LED_R] &= ~PORT_PCR_MUX_MASK;
+ PORTA->PCR[LED_R] |= PORT_PCR_MUX(1);
+ 
+ // Configure MUX settings for front led
+ PORTC->PCR[LED_G3] &= ~PORT_PCR_MUX_MASK;
+ PORTC->PCR[LED_G3] |= PORT_PCR_MUX(1);	
+ PORTC->PCR[LED_G4] &= ~PORT_PCR_MUX_MASK;
+ PORTC->PCR[LED_G4] |= PORT_PCR_MUX(1);
+ PORTC->PCR[LED_G5] &= ~PORT_PCR_MUX_MASK;
+ PORTC->PCR[LED_G5] |= PORT_PCR_MUX(1);
+ PORTC->PCR[LED_G6] &= ~PORT_PCR_MUX_MASK;
+ PORTC->PCR[LED_G6] |= PORT_PCR_MUX(1);
+ PORTC->PCR[LED_G7] &= ~PORT_PCR_MUX_MASK;
+ PORTC->PCR[LED_G7] |= PORT_PCR_MUX(1);
+ PORTC->PCR[LED_G8] &= ~PORT_PCR_MUX_MASK;
+ PORTC->PCR[LED_G8] |= PORT_PCR_MUX(1);
+ PORTC->PCR[LED_G9] &= ~PORT_PCR_MUX_MASK;
+ PORTC->PCR[LED_G9] |= PORT_PCR_MUX(1);
+ PORTC->PCR[LED_G10] &= ~PORT_PCR_MUX_MASK;
+ PORTC->PCR[LED_G10] |= PORT_PCR_MUX(1);
+
+ // Set Data Direction Registers for PortA and PortC
+ PTA->PDDR |= MASK(LED_R);
+ PTC->PDDR |= (MASK(LED_G3) | MASK(LED_G4) | MASK(LED_G5) | MASK(LED_G6) | MASK(LED_G7) | MASK(LED_G8) | MASK(LED_G9) | MASK(LED_G10));
 }
 */
