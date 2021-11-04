@@ -8,5 +8,5 @@
 extern uint8_t rx_data;
 
 void initUART2(uint32_t baud_rate);
-void UART2_IRQHandler(void);
+//void UART2_IRQHandler(void);
 void UART2_Transmit_Poll(uint8_t data);
