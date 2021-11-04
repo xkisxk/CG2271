@@ -10,14 +10,6 @@
 //null command
 #define NODATA 0x00
 
-//led commands
-#define RED_LED_OFF 0x30
-#define RED_LED_ON 0x31
-#define GREEN_LED_OFF 0x32
-#define GREEN_LED_ON 0x33
-#define BLUE_LED_OFF 0x34
-#define BLUE_LED_ON 0x35
-
 #define WIFI_STATUS 0x36
 
 //motor commands
@@ -34,7 +26,7 @@
 
 #define MSG_COUNT 1
 
-osMessageQueueId_t tAudioMsg, tMotorMsg, tLEDMsg, tBrainMsg;
+osMessageQueueId_t tAudioMsg, tMotorMsg, tGreenMsg, tRedMsg, tBrainMsg;
 
 //variable to store data received from UART
 uint8_t uartData;
@@ -74,12 +66,47 @@ void tMotor() {
 	}
 }
 
-void tLED() {
+void tGreen() {
+	uint8_t command = NODATA;
+	int ledchoice = 0;
+	
+	for(;;) {
+		osMessageQueueGet(tGreenMsg, &command, NULL, 0);
+
+		if (command == STOP || !(command == MOVE_FORWARD || command == MOVE_BACKWARD || command == MOVE_FORWARD_LEFT
+			|| command == MOVE_FORWARD_RIGHT || command == MOVE_BACKWARD_LEFT || command == MOVE_BACKWARD_RIGHT
+			|| command == TURN_LEFT || command == TURN_RIGHT)) {     // If robot is stationary
+			stationaryModeGreen();
+			//red flash on and off with period 0.5sec
+		} else if(command == WIFI_STATUS) {     //On connection with bluetooth.
+			//green flash twice
+			greenFlash();
+			command = STOP;		
+			osMessageQueuePut(tGreenMsg, &command, NULL, 0);
+		} else if(command != NODATA) { // If the robot is moving.
+			ledchoice = (ledchoice + 1) % 8;
+			runningModeGreen(ledchoice);
+			//green one at a time
+			//red flash on and off with period 1.0sec
+		}
+	}
+}
+
+void tRed() {
 	uint8_t command = NODATA;
 	
 	for(;;) {
-		osMessageQueueGet(tLEDMsg, &command, NULL, 0);
-		//TODO: add LED code
+		osMessageQueueGet(tRedMsg, &command, NULL, 0);
+
+		if (command == STOP || !(command == MOVE_FORWARD || command == MOVE_BACKWARD || command == MOVE_FORWARD_LEFT
+			|| command == MOVE_FORWARD_RIGHT || command == MOVE_BACKWARD_LEFT || command == MOVE_BACKWARD_RIGHT
+			|| command == TURN_LEFT || command == TURN_RIGHT)) {     // If robot is stationary
+			stationaryModeRed();
+			//red flash on and off with period 0.5sec
+		} else if(command != NODATA) { // If the robot is moving.
+			runningModeRed();
+			//red flash on and off with period 1.0sec
+		}
 	}
 }
 
@@ -91,7 +118,8 @@ void tBrain() {
 		//send uartData to corresponding thread
 		osMessageQueuePut(tMotorMsg, &uartData, NULL, 0);
     osMessageQueuePut(tAudioMsg, &uartData, NULL, 0);
-    osMessageQueuePut(tLEDMsg, &uartData, NULL, 0);
+    osMessageQueuePut(tGreenMsg, &uartData, NULL, 0);
+		osMessageQueuePut(tRedMsg, &uartData, NULL, 0);
 	}
 }
 
@@ -114,48 +142,15 @@ int main (void) {
 	osThreadNew(tBrain, NULL, NULL);    
   osThreadNew(tMotor, NULL, NULL);   
   osThreadNew(tAudio, NULL, NULL);    
-  osThreadNew(tLED, NULL, NULL);    
+  osThreadNew(tGreen, NULL, NULL);
+	osThreadNew(tRed, NULL, NULL);   	
 	
 	tBrainMsg = osMessageQueueNew(MSG_COUNT, sizeof(uint8_t), NULL);
   tMotorMsg = osMessageQueueNew(MSG_COUNT, sizeof(uint8_t), NULL);
   tAudioMsg = osMessageQueueNew(MSG_COUNT, sizeof(uint8_t), NULL);
-  tLEDMsg = osMessageQueueNew(MSG_COUNT, sizeof(uint8_t), NULL);
+  tGreenMsg = osMessageQueueNew(MSG_COUNT, sizeof(uint8_t), NULL);
+	tRedMsg = osMessageQueueNew(MSG_COUNT, sizeof(uint8_t), NULL);
 		
 	osKernelStart();                     
 	for (;;) {}
-		
-		/*
-		switch (rx_data) {
-			case (RED_LED_ON):
-				led_control(RED);
-				break;
-			case (RED_LED_OFF):
-				led_control(OFF);
-				break;
-			case (GREEN_LED_ON):
-				led_control(GREEN);
-				background_tune();
-				break;
-			case (GREEN_LED_OFF):
-				led_control(OFF);
-				off_audio();
-				break;
-			case (BLUE_LED_ON):
-				led_control(BLUE);
-				ending_tune();
-				break;
-			case (BLUE_LED_OFF):
-				led_control(OFF);
-				off_audio();
-				break;
-			case (WIFI_STATUS):
-				connected_tune();
-				connected_LED();
-				rx_data = 0x00;
-				break;
-			default:
-				led_control(OFF);
-				off_audio();
-		}
-		*/
 }
