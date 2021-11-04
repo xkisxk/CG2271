@@ -9,3 +9,6 @@
 .\objects\taudio.o: C:\Users\xkisx\AppData\Local\Arm\Packs\ARM\CMSIS\5.6.0\CMSIS\RTOS2\Include\cmsis_os2.h
 .\objects\taudio.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
 .\objects\taudio.o: tAudio.h
+.\objects\taudio.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\setjmp.h
+.\objects\taudio.o: Serial_ISR.h
+.\objects\taudio.o: C:\Users\xkisx\AppData\Local\Arm\Packs\Keil\Kinetis_KLxx_DFP\1.15.0\Device\Include\MKL25Z4.h

@@ -1,6 +1,13 @@
 #include "tMotorControl.h"
 #include "MKL25Z4.h"
 
+static void delay(volatile uint32_t nof) {
+  while(nof!=0) {
+    __asm("NOP");
+    nof--;
+  }
+}
+
 void initMotors(void)
 {
 	//Enable clock gating for PORTB
@@ -160,4 +167,46 @@ void rightreverse() {
 	TPM2->MOD = MOD_VAL;
 	TPM2_C0V = 0;
 	TPM2_C1V = (int) (MOD_VAL * SLOWER);
+}
+
+void selfDrive() {
+	forward();
+	//TODO: Add ultrasonic flag to tell it when to stop
+	while(1) {
+	}
+	left();
+	//TODO: Calibrate time to turn right angle
+	delay(0x80000);
+	forward();
+	delay(0x80000);
+	
+	right();
+	delay(0x80000);
+	forward();
+	delay(0x80000);
+	
+	right();
+	delay(0x80000);
+	forward();
+	delay(0x80000);
+	
+	right();
+	delay(0x80000);
+	forward();
+	delay(0x80000);
+	
+	right();
+	delay(0x80000);
+	forward();
+	delay(0x80000);
+	
+	left();
+	delay(0x80000);
+	
+	forward();
+	while(1) {
+	}
+	
+	stopMotors();
+	
 }
