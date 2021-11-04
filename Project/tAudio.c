@@ -1,6 +1,8 @@
 #include "MKL25Z4.h"                    // Device header
 #include "cmsis_os2.h"                  // ::CMSIS:RTOS2
 #include "tAudio.h"
+#include <setjmp.h>
+#include "Serial_ISR.h"
 
 int len[5] = {duration, duration/2, duration/4, duration/6, duration/8};
 int freq[SIZE] = {0, 
@@ -8,26 +10,38 @@ int freq[SIZE] = {0,
 									262, 294, 311, 330, 349, 392, 415, 440, 466, 494,
 									523, 587, 622, 659, 698, 784, 831, 880, 932, 988,
 									1047}; 
-
-static void delay(volatile uint32_t nof) {
-  while(nof!=0) {
-    __asm("NOP");
-    nof--;
-  }
-}
+jmp_buf jump_target;
 
 // TODO: Change delay function such that the functions can end whenever
+void play_note_jump(notes note, lengths length)
+{
+	if (note == Rest) {
+		TPM0->MOD = 0;
+	} else {
+		TPM0->MOD = ClockFreq / freq[note];
+	}
+	TPM0_C0V = TPM0->MOD * 0.3;
+	if (rx_data == 0x37) {
+		off_audio();
+		longjmp(jump_target, 1);
+	}
+	osDelay(42*len[length]);
+}
+
 void play_note(notes note, lengths length)
 {
-	TPM0->MOD = ClockFreq / freq[note];
+	if (note == Rest) {
+		TPM0->MOD = 0;
+	} else {
+		TPM0->MOD = ClockFreq / freq[note];
+	}
 	TPM0_C0V = TPM0->MOD * 0.3;
-	//delay(0x5000*len[length]);
-	//osDelay(len[length]);
 	osDelay(42*len[length]);
 }
 
 void off_audio()
 {
+	TPM0->MOD = 0;
 	TPM0_C0V = 0;
 }
 
@@ -77,117 +91,119 @@ void background_tune(void)
 	
 	//melody loop
 	// Might need to loop indefinitely
-	//bar 3
-	play_note(E5, triplet);
-	play_note(Rest, triplet);
-	play_note(G5, triplet);
-	
-	play_note(A5, triplet);
-	play_note(Rest, triplet);
-	play_note(G5, triplet);
-	
-	play_note(G5, crotchet);
-	
-	play_note(Rest, triplet);
-	play_note(Rest, triplet);
-	play_note(A5, triplet);
-	
-	//bar 4
-	play_note(B5, triplet);
-	play_note(Rest, triplet);
-	play_note(C6, triplet);
-	
-	play_note(B5, triplet);
-	play_note(Bb5, triplet);
-	play_note(A5, triplet);
-	
-	play_note(A5, crotchet);
-	
-	play_note(Rest, triplet);
-	play_note(Rest, triplet);
-	play_note(Eb5, triplet);
-	
-	//bar 5
-	play_note(E5, triplet);
-	play_note(Rest, triplet);
-	play_note(G5, triplet);
-	
-	play_note(A5, triplet);
-	play_note(Rest, triplet);
-	play_note(G5, triplet);
-	
-	play_note(G5, crotchet);
-	
-	play_note(Rest, triplet);
-	play_note(Rest, triplet);
-	play_note(Ab5, triplet);
-	
-	//bar 6
-	play_note(A5, triplet);
-	play_note(Rest, triplet);
-	play_note(Bb5, triplet);
-	
-	play_note(A5, triplet);
-	play_note(Ab5, triplet);
-	play_note(G5, triplet);
-	
-	play_note(G5, crotchet);
-	
-	play_note(Rest, triplet);
-	play_note(Rest, triplet);
-	play_note(Ab5, triplet);
-	
-	//bar 7
-	play_note(A5, triplet);
-	play_note(Rest, triplet);
-	play_note(B5, triplet);
-	
-	play_note(C6, triplet);
-	play_note(Rest, triplet);
-	play_note(A5, triplet);
-	
-	play_note(A5, crotchet);
-	
-	play_note(Rest, triplet);
-	play_note(Rest, triplet);
-	play_note(Ab5, triplet);
-	
-	//bar 8
-	play_note(G5, triplet);
-	play_note(Rest, triplet);
-	play_note(Ab5, triplet);
-	
-	play_note(A5, triplet);
-	play_note(Rest, triplet);
-	play_note(E5, triplet);
-	
-	play_note(E5, crotchet);
-	
-	play_note(Rest, crotchet);
-	
-	//bar 9
-	play_note(E5, triplet);
-	play_note(Rest, triplet);
-	play_note(C5, triplet);
-	
-	play_note(A4, triplet);
-	play_note(Rest, triplet);
-	play_note(E5, triplet);
-	
-	play_note(C5, triplet);
-	play_note(Rest, triplet);
-	play_note(A4, triplet);
-	
-	play_note(C5, triplet);
-	play_note(Rest, triplet);
-	play_note(G5, triplet);
-	
-	//bar 10
-	play_note(G5, minim);
-	
-	play_note(G5, crotchet);
-	
-	play_note(Rest, quaver);
+	while (setjmp(jump_target) == 0) {
+		//bar 3
+		play_note_jump(E5, triplet);
+		play_note_jump(Rest, triplet);
+		play_note_jump(G5, triplet);
+		
+		play_note_jump(A5, triplet);
+		play_note_jump(Rest, triplet);
+		play_note_jump(G5, triplet);
+		
+		play_note_jump(G5, crotchet);
+		
+		play_note_jump(Rest, triplet);
+		play_note_jump(Rest, triplet);
+		play_note_jump(A5, triplet);
+		
+		//bar 4
+		play_note_jump(B5, triplet);
+		play_note_jump(Rest, triplet);
+		play_note_jump(C6, triplet);
+		
+		play_note_jump(B5, triplet);
+		play_note_jump(Bb5, triplet);
+		play_note_jump(A5, triplet);
+		
+		play_note_jump(A5, crotchet);
+		
+		play_note_jump(Rest, triplet);
+		play_note_jump(Rest, triplet);
+		play_note_jump(Eb5, triplet);
+		
+		//bar 5
+		play_note_jump(E5, triplet);
+		play_note_jump(Rest, triplet);
+		play_note_jump(G5, triplet);
+		
+		play_note_jump(A5, triplet);
+		play_note_jump(Rest, triplet);
+		play_note_jump(G5, triplet);
+		
+		play_note_jump(G5, crotchet);
+		
+		play_note_jump(Rest, triplet);
+		play_note_jump(Rest, triplet);
+		play_note_jump(Ab5, triplet);
+		
+		//bar 6
+		play_note_jump(A5, triplet);
+		play_note_jump(Rest, triplet);
+		play_note_jump(Bb5, triplet);
+		
+		play_note_jump(A5, triplet);
+		play_note_jump(Ab5, triplet);
+		play_note_jump(G5, triplet);
+		
+		play_note_jump(G5, crotchet);
+		
+		play_note_jump(Rest, triplet);
+		play_note_jump(Rest, triplet);
+		play_note_jump(Ab5, triplet);
+		
+		//bar 7
+		play_note_jump(A5, triplet);
+		play_note_jump(Rest, triplet);
+		play_note_jump(B5, triplet);
+		
+		play_note_jump(C6, triplet);
+		play_note_jump(Rest, triplet);
+		play_note_jump(A5, triplet);
+		
+		play_note_jump(A5, crotchet);
+		
+		play_note_jump(Rest, triplet);
+		play_note_jump(Rest, triplet);
+		play_note_jump(Ab5, triplet);
+		
+		//bar 8
+		play_note_jump(G5, triplet);
+		play_note_jump(Rest, triplet);
+		play_note_jump(Ab5, triplet);
+		
+		play_note_jump(A5, triplet);
+		play_note_jump(Rest, triplet);
+		play_note_jump(E5, triplet);
+		
+		play_note_jump(E5, crotchet);
+		
+		play_note_jump(Rest, crotchet);
+		
+		//bar 9
+		play_note_jump(E5, triplet);
+		play_note_jump(Rest, triplet);
+		play_note_jump(C5, triplet);
+		
+		play_note_jump(A4, triplet);
+		play_note_jump(Rest, triplet);
+		play_note_jump(E5, triplet);
+		
+		play_note_jump(C5, triplet);
+		play_note_jump(Rest, triplet);
+		play_note_jump(A4, triplet);
+		
+		play_note_jump(C5, triplet);
+		play_note_jump(Rest, triplet);
+		play_note_jump(G5, triplet);
+		
+		//bar 10
+		play_note_jump(G5, minim);
+		
+		play_note_jump(G5, crotchet);
+		
+		play_note_jump(Rest, quaver);
+	}
 }
 
 void ending_tune(void)
@@ -235,7 +251,7 @@ void ending_tune(void)
 	
 	//bar 4
 	play_note(C6, crotchet);
-	play_note(Rest, semiquaver);
+	off_audio();
 }
 
 void initAudio(void)
