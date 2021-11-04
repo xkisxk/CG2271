@@ -21,8 +21,9 @@ void play_note(notes note, lengths length)
 {
 	TPM0->MOD = ClockFreq / freq[note];
 	TPM0_C0V = TPM0->MOD * 0.3;
-	delay(0x5000*len[length]);
+	//delay(0x5000*len[length]);
 	//osDelay(len[length]);
+	osDelay(42*len[length]);
 }
 
 void off_audio()

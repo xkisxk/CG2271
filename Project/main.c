@@ -91,27 +91,31 @@ void tMotor() {
 
 void tGreen() {
 	uint8_t command = NODATA;
-	int ledchoice = 0;
+	int ledChoice = 0;
 	
 	for(;;) {
 		osMessageQueueGet(tGreenMsg, &command, NULL, 0);
 
-		if (command == STOP || !(command == MOVE_FORWARD || command == MOVE_BACKWARD || command == MOVE_FORWARD_LEFT
-			|| command == MOVE_FORWARD_RIGHT || command == MOVE_BACKWARD_LEFT || command == MOVE_BACKWARD_RIGHT
-			|| command == TURN_LEFT || command == TURN_RIGHT)) {     // If robot is stationary
+		if (command == STOP) {     // If robot is stationary
 			stationaryModeGreen();
-			//red flash on and off with period 0.5sec
 		} else if(command == WIFI_STATUS) {     //On connection with bluetooth.
 			//green flash twice
 			greenFlash();
 			command = STOP;		
 			osMessageQueuePut(tGreenMsg, &command, NULL, 0);
-		} else if(command != NODATA) { // If the robot is moving.
-			ledchoice = (ledchoice + 1) % 8;
-			runningModeGreen(ledchoice);
+		} else if (command == MOVE_FORWARD || command == MOVE_BACKWARD || command == MOVE_FORWARD_LEFT
+			|| command == MOVE_FORWARD_RIGHT || command == MOVE_BACKWARD_LEFT || command == MOVE_BACKWARD_RIGHT
+			|| command == TURN_LEFT || command == TURN_RIGHT){
+			ledChoice = (ledChoice + 1) % 8;
+			runningModeGreen(ledChoice);
+		}			
+		
+		//else if(command != NODATA) { // If the robot is moving.
+	//		ledchoice = (ledchoice + 1) % 8;
+		//	runningModeGreen(ledchoice);
 			//green one at a time
 			//red flash on and off with period 1.0sec
-		}
+		//}
 	}
 }
 
@@ -121,15 +125,18 @@ void tRed() {
 	for(;;) {
 		osMessageQueueGet(tRedMsg, &command, NULL, 0);
 
-		if (command == STOP || !(command == MOVE_FORWARD || command == MOVE_BACKWARD || command == MOVE_FORWARD_LEFT
-			|| command == MOVE_FORWARD_RIGHT || command == MOVE_BACKWARD_LEFT || command == MOVE_BACKWARD_RIGHT
-			|| command == TURN_LEFT || command == TURN_RIGHT)) {     // If robot is stationary
+		if (command == STOP) {     // If robot is stationary
 			stationaryModeRed();
 			//red flash on and off with period 0.5sec
-		} else if(command != NODATA) { // If the robot is moving.
+		} else if (command == MOVE_FORWARD || command == MOVE_BACKWARD || command == MOVE_FORWARD_LEFT
+			|| command == MOVE_FORWARD_RIGHT || command == MOVE_BACKWARD_LEFT || command == MOVE_BACKWARD_RIGHT
+			|| command == TURN_LEFT || command == TURN_RIGHT){
 			runningModeRed();
+		}	
+			//else if(command != NODATA) { // If the robot is moving.
+			//runningModeRed();
 			//red flash on and off with period 1.0sec
-		}
+		//}
 	}
 }
 

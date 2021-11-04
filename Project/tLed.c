@@ -4,9 +4,11 @@
 
 uint8_t greenLeds[8] = {LED_G3, LED_G4, LED_G5, LED_G6, LED_G7, LED_G8, LED_G9, LED_G10};
 
-void offRed(void) 
-{
-	PTA->PDOR &= ~MASK(LED_R);
+static void delay(volatile uint32_t nof) {
+  while(nof!=0) {
+    __asm("NOP");
+    nof--;
+  }
 }
 
 void greenFlash() {
@@ -14,8 +16,10 @@ void greenFlash() {
 	for(i = 0; i<2; i++) {
 		PTC->PDOR |= (MASK(LED_G3) | MASK(LED_G4) | MASK(LED_G5) | MASK(LED_G6) | MASK(LED_G7) | MASK(LED_G8) | MASK(LED_G9) | MASK(LED_G10));
 		osDelay(GREEN_FLASH);
+		//delay(0x80000);
 		PTC->PDOR &= (~MASK(LED_G3) & ~MASK(LED_G4) & ~MASK(LED_G5) & ~MASK(LED_G6) & ~MASK(LED_G7) & ~MASK(LED_G8) & ~MASK(LED_G9) & ~MASK(LED_G10));
 		osDelay(GREEN_FLASH);
+		//delay(0x80000);
 	}
 }
 
@@ -23,37 +27,41 @@ void runningModeRed(void)
 {
 	//RED
 	PTA -> PDOR |= MASK(LED_R);
-	osDelay(RED_STOP);
+	osDelay(RED_MOVE);
+	//delay(0x80000);
 	PTA -> PDOR &= ~MASK(LED_R);
-	osDelay(RED_STOP);
+	osDelay(RED_MOVE);
+	//delay(0x80000);
 }
 
-void runningModeGreen(int ledchoice)
+void runningModeGreen(int ledChoice)
 {
-	PTD -> PDOR |= MASK(greenLeds[ledchoice]);
+	PTC->PDOR &= (~MASK(LED_G3) & ~MASK(LED_G4) & ~MASK(LED_G5) & ~MASK(LED_G6) & ~MASK(LED_G7) & ~MASK(LED_G8) & ~MASK(LED_G9) & ~MASK(LED_G10));
+	PTC -> PDOR |= MASK(greenLeds[ledChoice]);
 	osDelay(GREEN_MOVE);
-	PTD -> PDOR &= ~MASK(greenLeds[ledchoice]);
+	//delay(0x1000);
+	PTC -> PDOR &= ~MASK(greenLeds[ledChoice]);
+	osDelay(GREEN_MOVE);
 }
 
 void stationaryModeRed(void)
 {
 	PTA -> PDOR |= MASK(LED_R);
-	osDelay(RED_MOVE);
+	osDelay(RED_STOP);
+	//delay(0x40000);
 	PTA -> PDOR &= ~MASK(LED_R);
-	osDelay(RED_MOVE);
+	osDelay(RED_STOP);
+	//delay(0x40000);
 }
 
 void stationaryModeGreen(void)
 {
-		PTC->PDOR |= (MASK(LED_G3) | MASK(LED_G4) | MASK(LED_G5) | MASK(LED_G6) | MASK(LED_G7) | MASK(LED_G8) | MASK(LED_G9) | MASK(LED_G10));
+	PTC->PDOR |= (MASK(LED_G3) | MASK(LED_G4) | MASK(LED_G5) | MASK(LED_G6) | MASK(LED_G7) | MASK(LED_G8) | MASK(LED_G9) | MASK(LED_G10));
 }
 
 void initLED(void) {
-	// Enable Clock to PORTC
-	SIM->SCGC5 |= (SIM_SCGC5_PORTC_MASK);
-	
-	// Enable Clock for PORTA
-	SIM->SCGC5 |= (SIM_SCGC5_PORTA_MASK);
+ // Enable Clock to PORTC
+ SIM->SCGC5 |= (SIM_SCGC5_PORTC_MASK) | (SIM_SCGC5_PORTA_MASK);
 	
  // Configure MUX settings for rear led
  PORTA->PCR[LED_R] &= ~PORT_PCR_MUX_MASK;
