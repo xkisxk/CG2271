@@ -117,7 +117,7 @@ int executeUltrasonic(void){
 		//double distance = 34000 * duration / 2;
 		if(echoCounterLength < 550){
 				tooCloseFlag = 1;
-				//return tooCloseFlag;
+				return tooCloseFlag;
 		} else {
 			tooCloseFlag = 0;
 		}
