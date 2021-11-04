@@ -1,36 +1,23 @@
 #include "MKL25Z4.h"                    // Device header
-unsigned int counter = 0;
+#include "tUltrasonic.h"
 
-#define RED_LED 18 // PortB Pin 18
-#define GREEN_LED 19 // PortB Pin 19
-#define BLUE_LED 1 // PortD Pin 1
-#define TRIG_PIN 2 // PTD2
-#define ECHO_PIN 3 //PTD3
-#define MASK(x) (1 << (x))
-volatile static int startEchoSignal = 0;
-volatile static int finishEchoSignal = 0;
-volatile static int echoClkCycle = 0;
+volatile int startEchoSignal = 0;
+volatile int finishEchoSignal = 0;
+volatile int echoCounterLength = 0;
 
-void InitGPIO(void)
+void InitUltrasonicGPIO(void)
 {
 //System Clock Gate Control Register	
 // Enable Clock to PORTB and PORTD
-SIM->SCGC5 |= ((SIM_SCGC5_PORTB_MASK) | (SIM_SCGC5_PORTD_MASK));
+SIM->SCGC5 |= SIM_SCGC5_PORTD_MASK;
 // Configure MUX settings to make all 3 pins GPIO
 //PORT_PCR_MUX_MASK = 0x700u. Need to clear it first	
-PORTB->PCR[RED_LED] &= ~PORT_PCR_MUX_MASK; //clear bits 8,9,10 to reset whatever config was there
-PORTB->PCR[RED_LED] |= PORT_PCR_MUX(1); //set to gpio
-PORTB->PCR[GREEN_LED] &= ~PORT_PCR_MUX_MASK;
-PORTB->PCR[GREEN_LED] |= PORT_PCR_MUX(1);
-PORTD->PCR[BLUE_LED] &= ~PORT_PCR_MUX_MASK;
-PORTD->PCR[BLUE_LED] |= PORT_PCR_MUX(1);
-	
+
 PORTD->PCR[TRIG_PIN] &= ~PORT_PCR_MUX_MASK;
 PORTD->PCR[TRIG_PIN] |= PORT_PCR_MUX(1);
 	
-// Set Data Direction Registers for PortB and PortD
-PTB->PDDR |= (MASK(RED_LED) | MASK(GREEN_LED));
-PTD->PDDR |= MASK(BLUE_LED) | MASK(TRIG_PIN);
+// Set Data Direction Registers for PortD
+PTD->PDDR |= MASK(TRIG_PIN);
 }
 
 void TPM0_IRQHandler()
@@ -39,14 +26,15 @@ void TPM0_IRQHandler()
 	//Nested Vectored Interrupt Controller
 	NVIC_ClearPendingIRQ(TPM0_IRQn);
 	// Updating some variable / flag
+	
 	if(startEchoSignal == 0) { //rising edge
 			startEchoSignal = 1;
 			finishEchoSignal = 0;
-			echoClkCycle = TPM0_C3V;
+			echoCounterLength = TPM0_C3V;
 	} else { //falling edge
 		startEchoSignal = 0;
 		finishEchoSignal = 1;
-		echoClkCycle = TPM0_C3V - echoClkCycle;
+		echoCounterLength = TPM0_C3V - echoCounterLength;
 	}
 	
 //Clear Interrupt Flag
@@ -56,10 +44,8 @@ void TPM0_IRQHandler()
 	PORTD->ISFR |= MASK(ECHO_PIN);
 }
 
-void initPWM(void)
+void initUltrasonicPWM(void)
 {
-	//Enable clock gating for PORTD
-	//SIM_SCGC5 |= (SIM_SCGC5_PORTD_MASK);
 	
 	//Configure mux settings to make pins GPIO
 	
@@ -77,7 +63,8 @@ void initPWM(void)
 	
 	//Set modulo value 48000000 / 128 = 375000 / 7500 = 50Hz //128 is PS; 
 	//when count reach 7500, signal goes back to 0 and counts back up again
-	TPM1->MOD = 7500; //period of PWM waveform
+  
+	TPM0->MOD = 7500; //period of PWM waveform
 	
 	/*Edge-Aligned PWM*/
 	//pg.552
@@ -110,38 +97,33 @@ void initPWM(void)
 		delay(120);
 		PTD->PDOR &= ~MASK(TRIG_PIN);
  }
- 
-void offRGB() {
-	/* Active low, so set bits to 1 to switch off */
-	PTD->PDOR |= MASK(BLUE_LED);
-	PTB->PDOR |= MASK(RED_LED);
-	PTB->PDOR |= MASK(GREEN_LED);
-}
 
-int main(void){
+int executeUltrasonic(void){
+	int tooCloseFlag = 0;
 	SystemCoreClockUpdate();
 	//initialises GPIO
-	InitGPIO();
-	initPWM();
+	InitUltrasonicGPIO();
+	initUltrasonicPWM();
 	//turns off all LED to prevent white light at the start
-	offRGB();
 	
 	while(1){
 		generateTRIG();
 		TPM0_CNT = 0;
-		//delay(300000);
+		delay(300000);
 		if(finishEchoSignal == 0) {
-			echoClkCycle = 10000000;
+			echoCounterLength = 10000000;
 		}
-		double duration = (((double) echoClkCycle) / (50 * 7500));
-		double distance = 3.4 * duration / 2;
-		if(distance > 10){
-			PTB->PDOR &= ~MASK(GREEN_LED);
+		//double duration = (((double) echoCounterLength) / (50 * 7500));
+		//double distance = 34000 * duration / 2;
+		if(echoCounterLength < 550){
+				tooCloseFlag = 1;
+				//return tooCloseFlag;
 		} else {
-			PTB->PDOR |= MASK(GREEN_LED);
+			tooCloseFlag = 0;
 		}
+		
 		startEchoSignal = 0;
 		finishEchoSignal = 1;
-		
+
 	}
 }
