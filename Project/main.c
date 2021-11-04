@@ -151,8 +151,10 @@ int main (void) {
 	
 	//Enable board LED
 	initLED();
+	
 	//Enable Audio
 	initAudio();
+	
 	//Enable UART
 	initUART2(BAUD_RATE);
 	//Enable motor

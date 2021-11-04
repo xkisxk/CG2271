@@ -49,7 +49,12 @@ void stationaryModeGreen(void)
 }
 
 void initLED(void) {
-
+	// Enable Clock to PORTC
+	SIM->SCGC5 |= (SIM_SCGC5_PORTC_MASK);
+	
+	// Enable Clock for PORTA
+	SIM->SCGC5 |= (SIM_SCGC5_PORTA_MASK);
+	
  // Configure MUX settings for rear led
  PORTA->PCR[LED_R] &= ~PORT_PCR_MUX_MASK;
  PORTA->PCR[LED_R] |= PORT_PCR_MUX(1);
