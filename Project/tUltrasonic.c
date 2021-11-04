@@ -12,7 +12,7 @@ void InitUltrasonicGPIO(void)
 SIM->SCGC5 |= SIM_SCGC5_PORTD_MASK;
 // Configure MUX settings to make all 3 pins GPIO
 //PORT_PCR_MUX_MASK = 0x700u. Need to clear it first	
-	
+
 PORTD->PCR[TRIG_PIN] &= ~PORT_PCR_MUX_MASK;
 PORTD->PCR[TRIG_PIN] |= PORT_PCR_MUX(1);
 	
@@ -63,6 +63,7 @@ void initUltrasonicPWM(void)
 	
 	//Set modulo value 48000000 / 128 = 375000 / 7500 = 50Hz //128 is PS; 
 	//when count reach 7500, signal goes back to 0 and counts back up again
+  
 	TPM0->MOD = 7500; //period of PWM waveform
 	
 	/*Edge-Aligned PWM*/
@@ -123,6 +124,6 @@ int executeUltrasonic(void){
 		
 		startEchoSignal = 0;
 		finishEchoSignal = 1;
-		
+
 	}
 }
