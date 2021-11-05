@@ -1,10 +1,12 @@
 #include "MKL25Z4.h"                    // Device header
 #include "tUltrasonic.h"
+#include "cmsis_os2.h" 
 
 volatile int startEchoSignal = 0;
 volatile int finishEchoSignal = 0;
 volatile int echoCounterLength = 0;
-
+volatile int capturedVal = 0;
+volatile int overflowFlag = 0;
 void InitUltrasonicGPIO(void)
 {
 //System Clock Gate Control Register	
@@ -22,24 +24,31 @@ PTD->PDDR |= MASK(TRIG_PIN);
 
 void TPM0_IRQHandler()
 {
-// Clear Pending IRQ
-	//Nested Vectored Interrupt Controller
-	NVIC_ClearPendingIRQ(TPM0_IRQn);
-	// Updating some variable / flag
-	
-	if(startEchoSignal == 0) { //rising edge
-			startEchoSignal = 1;
-			finishEchoSignal = 0;
-			echoCounterLength = TPM0_C3V;
-	} else { //falling edge
-		startEchoSignal = 0;
-		finishEchoSignal = 1;
-		echoCounterLength = TPM0_C3V - echoCounterLength;
+	if (TPM0->SC & TPM_SC_TOF_MASK) {
+		overflowFlag = 1;
+	}
+	else {
+		overflowFlag = 0;
+	// Clear Pending IRQ
+		//Nested Vectored Interrupt Controller
+		NVIC_ClearPendingIRQ(TPM0_IRQn);
+		// Updating some variable / flag
+		
+		if(startEchoSignal == 0) { //rising edge
+				startEchoSignal = 1;
+				finishEchoSignal = 0;
+				echoCounterLength = TPM0_C3V;
+		} else { //falling edge
+			startEchoSignal = 0;
+			finishEchoSignal = 1;
+			echoCounterLength = TPM0_C3V - echoCounterLength;
+		}
 	}
 	
 //Clear Interrupt Flag
 	//clear event flag
 	TPM0_C3SC |= TPM_CnSC_CHF_MASK;
+	TPM0->SC |= TPM_SC_TOF_MASK;
 	//TPM0->SC |= TPM_SC_TOF_MASK;
 	PORTD->ISFR |= MASK(ECHO_PIN);
 }
@@ -72,6 +81,8 @@ void initUltrasonicPWM(void)
 	TPM0->SC &= ~((TPM_SC_CMOD_MASK) | (TPM_SC_PS_MASK));
 	TPM0->SC |= (TPM_SC_CMOD(1) | TPM_SC_PS(7));
 	TPM0->SC &= ~(TPM_SC_CPWMS_MASK); //Center-Aligned PWM Select by clearing CPWMS bit
+	
+	TPM0->SC |= (TPM_SC_TOIE_MASK);
 	
 	//Enable PWM on TPM0 CHannel 3 -> PTD3 ; setting CnSC to Capture rising and falling edge, enabling channel interrupts
 	TPM0_C3SC &= ~( TPM_CnSC_CHIE_MASK | (TPM_CnSC_ELSB_MASK) | (TPM_CnSC_ELSA_MASK) | (TPM_CnSC_MSB_MASK) | (TPM_CnSC_MSA_MASK)); //all this for setting bits
@@ -106,20 +117,34 @@ void initUltrasonicPWM(void)
 int executeUltrasonic(void){
 	int tooCloseFlag = 0;
 	//SystemCoreClockUpdate();
-	
+	int array[3] = {0};
+	int i = 0;
 	while(1){
 		generateTRIG();
 		TPM0_CNT = 0;
-		delay(300000);
+		//delay(200000);
+		osDelay(10);
 		if(finishEchoSignal == 0) {
 			echoCounterLength = 10000000;
 		}
-		if(echoCounterLength < 550){
-				tooCloseFlag = 1;
-				return tooCloseFlag;
+		array[i] = echoCounterLength;
+		
+		i = (i + 1) % 3;
+		
+		int flag = 0;
+		for (int k = 0; k < 3; k++) {
+			if(array[k] < 210 && array[k] > 0){
+				flag++;
+			}
+		}
+		
+		if(flag == 3){
+			tooCloseFlag = 1;
+			return tooCloseFlag;
 		} else {
 			tooCloseFlag = 0;
 		}
+
 		
 		startEchoSignal = 0;
 		finishEchoSignal = 1;

@@ -6,6 +6,8 @@
 #define UART2_INT_PRIO 128
 
 extern uint8_t rx_data;
+extern uint8_t endAudio;
+
 
 void initUART2(uint32_t baud_rate);
 //void UART2_IRQHandler(void);
