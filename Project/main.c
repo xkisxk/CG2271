@@ -86,7 +86,10 @@ void tMotor() {
 		} else if (command == SELF_DRIVE) {
 			selfDrive();
 			command = END_CHALLENGE;
-			osMessageQueuePut(tAudio, &command, NULL, 0);
+			endAudio = END_CHALLENGE;
+			osMessageQueuePut(tAudioMsg, &command, NULL, 0);
+			osMessageQueuePut(tGreenMsg, &command, NULL, 0);
+			osMessageQueuePut(tRedMsg, &command, NULL, 0);
 		} else {  //STOP
 			stopMotors();
 		}

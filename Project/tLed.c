@@ -11,7 +11,7 @@ static void delay(volatile uint32_t nof) {
   }
 }
 
-void greenFlash() {
+void greenFlash(void) {
 	int i;
 	for(i = 0; i<2; i++) {
 		PTC->PDOR |= (MASK(LED_G3) | MASK(LED_G4) | MASK(LED_G5) | MASK(LED_G6) | MASK(LED_G7) | MASK(LED_G8) | MASK(LED_G9) | MASK(LED_G10));

@@ -21,8 +21,9 @@ void play_note_jump(notes note, lengths length)
 		TPM0->MOD = ClockFreq / freq[note];
 	}
 	TPM0_C0V = TPM0->MOD * 0.3;
-	if (rx_data == 0x37) {
+	if (rx_data == 0x37 || endAudio == 0x37) {
 		off_audio();
+		endAudio = 0;
 		longjmp(jump_target, 1);
 	}
 	osDelay(42*len[length]);
