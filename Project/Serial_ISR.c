@@ -2,6 +2,7 @@
 #include "cmsis_os2.h"
 
 uint8_t rx_data = 0;
+uint8_t endAudio = 0;
 
 void initUART2(uint32_t baud_rate)
 {

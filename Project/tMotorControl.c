@@ -1,5 +1,6 @@
 #include "tMotorControl.h"
 #include "tUltrasonic.h"
+#include "cmsis_os2.h" 
 #include "MKL25Z4.h"
 
 static void delay(volatile uint32_t nof) {
@@ -88,6 +89,16 @@ void forward() {
 	TPM2_C1V = 0;
 }
 
+void selfdriveforward() {
+  TPM1->MOD = MOD_VAL;
+	TPM1_C0V = (int) (MOD_VAL * SDDC);
+	TPM1_C1V = 0;
+	
+	TPM2->MOD = MOD_VAL;
+	TPM2_C0V = (int) (MOD_VAL * SDDC);
+	TPM2_C1V = 0;
+}
+
 void reverse() {
   TPM1->MOD = MOD_VAL;
 	TPM1_C0V = 0;
@@ -173,42 +184,86 @@ void rightreverse() {
 void selfDrive() {
 	initUltrasonic();
 	int flag = 0;
-	forward();
+	selfdriveforward();
 	//TODO: Add ultrasonic flag to tell it when to stop
 	while(!flag) {
 			flag = executeUltrasonic();
 	}
 	flag = 0;
+	//left();
+	//osDelay(1000);
+	
+	//turn 90 degress left
+	left();
+	osDelay(450);
+	//move forward
+	forward();
+	osDelay(350);
+	//turn 120 degress right
+	right();
+	osDelay(650);
+	//move forward
+	forward();
+	osDelay(700);
+	//turn 120 degress right
+	right();
+	osDelay(650);
+  //move forward
+	forward();
+	osDelay(700);
+	//turn 120 degrees right
+	right();
+	osDelay(650);
+	//move forward
+	forward();
+	osDelay(350);
+	//turn 90 degress left
+	left();
+	osDelay(450);
+	
+	/*
 	left();
 	//TODO: Calibrate time to turn right angle
-	delay(0x80000);
-	forward();
-	delay(0x80000);
+	//delay(0x80000);
+	osDelay(500);
+	selfdriveforward();
+	//delay(0x80000);
+	osDelay(500);
 	
 	right();
-	delay(0x80000);
-	forward();
-	delay(0x80000);
+	//delay(0x80000);
+	osDelay(500);
+	selfdriveforward();
+	//delay(0x80000);
+	osDelay(500);
 	
 	right();
-	delay(0x80000);
-	forward();
-	delay(0x80000);
+	//delay(0x80000);
+	osDelay(500);
+	selfdriveforward();
+	//delay(0x80000);
+	osDelay(500);
 	
 	right();
-	delay(0x80000);
-	forward();
-	delay(0x80000);
+	//delay(0x80000);
+	osDelay(500);
+	selfdriveforward();
+	//delay(0x80000);
+	osDelay(500);
 	
 	right();
-	delay(0x80000);
-	forward();
-	delay(0x80000);
+	//delay(0x80000);
+	osDelay(500);
+	selfdriveforward();
+	//delay(0x80000);
+	osDelay(500);
 	
 	left();
-	delay(0x80000);
+	//delay(0x80000);
+	osDelay(500
+	*/
 	
-	forward();
+	selfdriveforward();
 	while(!flag) {
 			flag = executeUltrasonic();
 	}
