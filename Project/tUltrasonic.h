@@ -8,4 +8,5 @@ void TPM0_IRQHandler();
 void initUltrasonicPWM(void);
 void delay(volatile uint32_t nof);
 void generateTRIG();
+void initUltrasonic(void);
 int executeUltrasonic(void);
