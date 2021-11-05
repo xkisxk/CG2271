@@ -97,14 +97,15 @@ void initUltrasonicPWM(void)
 		delay(120);
 		PTD->PDOR &= ~MASK(TRIG_PIN);
  }
+ 
+ void initUltrasonic(void){
+	InitUltrasonicGPIO();
+	initUltrasonicPWM();
+ }
 
 int executeUltrasonic(void){
 	int tooCloseFlag = 0;
-	SystemCoreClockUpdate();
-	//initialises GPIO
-	InitUltrasonicGPIO();
-	initUltrasonicPWM();
-	//turns off all LED to prevent white light at the start
+	//SystemCoreClockUpdate();
 	
 	while(1){
 		generateTRIG();
@@ -113,8 +114,6 @@ int executeUltrasonic(void){
 		if(finishEchoSignal == 0) {
 			echoCounterLength = 10000000;
 		}
-		//double duration = (((double) echoCounterLength) / (50 * 7500));
-		//double distance = 34000 * duration / 2;
 		if(echoCounterLength < 550){
 				tooCloseFlag = 1;
 				return tooCloseFlag;

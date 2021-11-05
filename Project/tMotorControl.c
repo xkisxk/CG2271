@@ -171,6 +171,7 @@ void rightreverse() {
 }
 
 void selfDrive() {
+	initUltrasonic();
 	int flag = 0;
 	forward();
 	//TODO: Add ultrasonic flag to tell it when to stop
