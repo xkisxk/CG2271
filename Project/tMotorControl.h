@@ -20,3 +20,4 @@ void leftforward(void);
 void rightforward(void);
 void leftreverse(void);
 void rightreverse(void);
+void selfDrive(void);
