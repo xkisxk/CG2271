@@ -123,7 +123,7 @@ int executeUltrasonic(void){
 		generateTRIG();
 		TPM0_CNT = 0;
 		//delay(200000);
-		osDelay(10);
+		osDelay(2);
 		if(finishEchoSignal == 0) {
 			echoCounterLength = 10000000;
 		}

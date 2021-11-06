@@ -427,6 +427,16 @@
               <FileType>1</FileType>
               <FilePath>.\tMotorControl.c</FilePath>
             </File>
+            <File>
+              <FileName>tUltrasonic.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\tUltrasonic.c</FilePath>
+            </File>
+            <File>
+              <FileName>tUltrasonic.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\tUltrasonic.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

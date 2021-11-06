@@ -4,6 +4,7 @@
 ".\objects\serial_isr.o"
 ".\objects\tled.o"
 ".\objects\tmotorcontrol.o"
+".\objects\tultrasonic.o"
 "..\..\..\..\AppData\Local\Arm\Packs\ARM\CMSIS\5.6.0\CMSIS\RTOS2\RTX\Library\ARM\RTX_CM0.lib"
 ".\objects\rtx_lib.o"
 ".\objects\rtx_config.o"
