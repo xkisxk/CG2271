@@ -25,7 +25,7 @@
 #define STOP 0x48
 #define SELF_DRIVE 0x49
 
-#define MSG_COUNT 1
+#define MSG_COUNT 2
 
 osMessageQueueId_t tAudioMsg, tMotorMsg, tGreenMsg, tRedMsg, tBrainMsg;
 

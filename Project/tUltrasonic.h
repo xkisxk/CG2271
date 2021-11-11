@@ -3,6 +3,8 @@
 #define ECHO_PIN 3 //PTD3
 #define MASK(x) (1 << (x))
 
+#define ARRAY_SIZE 4
+
 void InitUltrasonicGPIO(void);
 void TPM0_IRQHandler();
 void initUltrasonicPWM(void);

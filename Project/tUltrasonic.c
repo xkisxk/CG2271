@@ -117,7 +117,7 @@ void initUltrasonicPWM(void)
 int executeUltrasonic(void){
 	int tooCloseFlag = 0;
 	//SystemCoreClockUpdate();
-	int array[3] = {0};
+	int array[ARRAY_SIZE] = {0};
 	int i = 0;
 	while(1){
 		generateTRIG();
@@ -129,16 +129,16 @@ int executeUltrasonic(void){
 		}
 		array[i] = echoCounterLength;
 		
-		i = (i + 1) % 3;
+		i = (i + 1) % ARRAY_SIZE;
 		
 		int flag = 0;
-		for (int k = 0; k < 3; k++) {
-			if(array[k] < 210 && array[k] > 0){
+		for (int k = 0; k < ARRAY_SIZE; k++) {
+			if(array[k] < 250 && array[k] > 0){
 				flag++;
 			}
 		}
 		
-		if(flag == 3){
+		if(flag == ARRAY_SIZE){
 			tooCloseFlag = 1;
 			return tooCloseFlag;
 		} else {

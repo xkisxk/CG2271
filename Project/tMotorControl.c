@@ -185,83 +185,39 @@ void selfDrive() {
 	initUltrasonic();
 	int flag = 0;
 	selfdriveforward();
-	//TODO: Add ultrasonic flag to tell it when to stop
+
 	while(!flag) {
 			flag = executeUltrasonic();
 	}
 	flag = 0;
-	//left();
-	//osDelay(1000);
 	
 	//turn 90 degress left
 	left();
-	osDelay(450);
+	osDelay(470);
 	//move forward
 	forward();
-	osDelay(350);
+	osDelay(500);
 	//turn 120 degress right
 	right();
-	osDelay(650);
+	osDelay(666);
 	//move forward
 	forward();
-	osDelay(700);
+	osDelay(1000);
 	//turn 120 degress right
 	right();
-	osDelay(650);
+	osDelay(666);
   //move forward
 	forward();
-	osDelay(700);
+	osDelay(1100);
 	//turn 120 degrees right
 	right();
-	osDelay(650);
+	osDelay(710);
 	//move forward
 	forward();
-	osDelay(350);
+	osDelay(500);
 	//turn 90 degress left
 	left();
-	osDelay(450);
-	
-	/*
-	left();
-	//TODO: Calibrate time to turn right angle
-	//delay(0x80000);
-	osDelay(500);
-	selfdriveforward();
-	//delay(0x80000);
-	osDelay(500);
-	
-	right();
-	//delay(0x80000);
-	osDelay(500);
-	selfdriveforward();
-	//delay(0x80000);
-	osDelay(500);
-	
-	right();
-	//delay(0x80000);
-	osDelay(500);
-	selfdriveforward();
-	//delay(0x80000);
-	osDelay(500);
-	
-	right();
-	//delay(0x80000);
-	osDelay(500);
-	selfdriveforward();
-	//delay(0x80000);
-	osDelay(500);
-	
-	right();
-	//delay(0x80000);
-	osDelay(500);
-	selfdriveforward();
-	//delay(0x80000);
-	osDelay(500);
-	
-	left();
-	//delay(0x80000);
-	osDelay(500
-	*/
+	osDelay(470);
 	
 	selfdriveforward();
 	while(!flag) {

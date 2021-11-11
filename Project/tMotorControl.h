@@ -7,8 +7,8 @@
 //Set modulo value 48000000 / 128 = 375000 / 7500 = 50Hz //128 is PS; 
 //when count reach value of MOD_VAL, signal goes back to 0 and counts back up again
 #define MOD_VAL 7500
-#define DUTY_CYCLE 0.8
-#define SLOWER 0.2
+#define DUTY_CYCLE 0.9
+#define SLOWER 0.05
 #define SDDC 0.5
 
 void initMotors(void);
