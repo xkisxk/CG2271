@@ -193,31 +193,31 @@ void selfDrive() {
 	
 	//turn 90 degress left
 	left();
-	osDelay(470);
+	osDelay(330);
 	//move forward
 	forward();
-	osDelay(500);
+	osDelay(300);
 	//turn 120 degress right
 	right();
-	osDelay(666);
+	osDelay(440);
 	//move forward
 	forward();
-	osDelay(1000);
+	osDelay(600);
 	//turn 120 degress right
 	right();
-	osDelay(666);
+	osDelay(440);
   //move forward
 	forward();
-	osDelay(1100);
+	osDelay(600);
 	//turn 120 degrees right
 	right();
-	osDelay(710);
+	osDelay(460);
 	//move forward
 	forward();
-	osDelay(500);
+	osDelay(300);
 	//turn 90 degress left
 	left();
-	osDelay(470);
+	osDelay(330);
 	
 	selfdriveforward();
 	while(!flag) {
