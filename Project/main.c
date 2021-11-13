@@ -32,7 +32,6 @@ osMessageQueueId_t tAudioMsg, tMotorMsg, tGreenMsg, tRedMsg, tBrainMsg;
 //variable to store data received from UART
 uint8_t uartData;
 
-//TODO: add UART IRQ handler??
 //UART2 Interrupt Request Handler
 void UART2_IRQHandler(void) 
 {
@@ -116,13 +115,6 @@ void tGreen() {
 			ledChoice = (ledChoice + 1) % 8;
 			runningModeGreen(ledChoice);
 		}			
-		
-		//else if(command != NODATA) { // If the robot is moving.
-	//		ledchoice = (ledchoice + 1) % 8;
-		//	runningModeGreen(ledchoice);
-			//green one at a time
-			//red flash on and off with period 1.0sec
-		//}
 	}
 }
 
@@ -140,10 +132,6 @@ void tRed() {
 			|| command == TURN_LEFT || command == TURN_RIGHT || command == SELF_DRIVE){
 			runningModeRed();
 		}	
-			//else if(command != NODATA) { // If the robot is moving.
-			//runningModeRed();
-			//red flash on and off with period 1.0sec
-		//}
 	}
 }
 

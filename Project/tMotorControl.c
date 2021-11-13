@@ -66,7 +66,6 @@ void initMotors(void)
 	//Enable PWM on TPM2 channel 1 -> PTB3
 	TPM2_C1SC &= ~((TPM_CnSC_ELSB_MASK) | (TPM_CnSC_ELSA_MASK) | (TPM_CnSC_MSB_MASK) | (TPM_CnSC_MSA_MASK));
 	TPM2_C1SC |= (TPM_CnSC_ELSB(1) | TPM_CnSC_MSB(1));
-	
 }
 
 void stopMotors() {
@@ -226,5 +225,4 @@ void selfDrive() {
 	flag = 0;
 	
 	stopMotors();
-	
 }
