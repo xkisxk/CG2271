@@ -1,4 +1,4 @@
-![](assets/2271bot.jpg)
+![2271bot](assets/2271bot.jpg)
 # CG2271
 The aim of the project is to design a RTOS-based robotic car that will be controlled through an Android app. The robotic car must be able to fulfil the following features:
 1. Establish a WiFi connection with the Android App
