@@ -56,7 +56,7 @@ void TPM0_IRQHandler()
 void initUltrasonicPWM(void)
 {
 	
-	//Configure mux settings to make pins GPIO
+	//Configure mux settings to make pins PWM
 	
 	PORTD->PCR[ECHO_PIN] &= ~PORT_PCR_MUX_MASK;
 	//Alternative 4 TPM0 pg.163 for PTB0
