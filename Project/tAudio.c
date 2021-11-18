@@ -26,6 +26,10 @@ void play_note_jump(notes note, lengths length)
 		endAudio = 0;
 		longjmp(jump_target, 1);
 	}
+	// 60 / (BPM * length of crotchet) * 1000
+	// In this case, the BPM is 120
+	// Length of crotchet = duration / 2, in this case is 12
+	// Hence, 120 / (60*12) * 1000 = 41.666 = 42
 	osDelay(42*len[length]);
 }
 
