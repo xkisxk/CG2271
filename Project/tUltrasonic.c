@@ -9,17 +9,17 @@ volatile int capturedVal = 0;
 volatile int overflowFlag = 0;
 void InitUltrasonicGPIO(void)
 {
-//System Clock Gate Control Register	
-// Enable Clock to PORTB and PORTD
-SIM->SCGC5 |= SIM_SCGC5_PORTD_MASK;
-// Configure MUX settings to make all 3 pins GPIO
-//PORT_PCR_MUX_MASK = 0x700u. Need to clear it first	
+	//System Clock Gate Control Register	
+	// Enable Clock to PORTB and PORTD
+	SIM->SCGC5 |= SIM_SCGC5_PORTD_MASK;
+	// Configure MUX settings to make all 3 pins GPIO
+	//PORT_PCR_MUX_MASK = 0x700u. Need to clear it first	
 
-PORTD->PCR[TRIG_PIN] &= ~PORT_PCR_MUX_MASK;
-PORTD->PCR[TRIG_PIN] |= PORT_PCR_MUX(1);
+	PORTD->PCR[TRIG_PIN] &= ~PORT_PCR_MUX_MASK;
+	PORTD->PCR[TRIG_PIN] |= PORT_PCR_MUX(1);
 	
-// Set Data Direction Registers for PortD
-PTD->PDDR |= MASK(TRIG_PIN);
+	// Set Data Direction Registers for PortD
+	PTD->PDDR |= MASK(TRIG_PIN);
 }
 
 void TPM0_IRQHandler()
@@ -29,7 +29,7 @@ void TPM0_IRQHandler()
 	}
 	else {
 		overflowFlag = 0;
-	// Clear Pending IRQ
+		// Clear Pending IRQ
 		//Nested Vectored Interrupt Controller
 		NVIC_ClearPendingIRQ(TPM0_IRQn);
 		// Updating some variable / flag
@@ -57,7 +57,7 @@ void initUltrasonicPWM(void)
 {
 	
 	//Configure mux settings to make pins GPIO
-	
+
 	PORTD->PCR[ECHO_PIN] &= ~PORT_PCR_MUX_MASK;
 	//Alternative 4 TPM0 pg.163 for PTB0
 	PORTD->PCR[ECHO_PIN] |= (PORT_PCR_MUX(4) | PORT_PCR_IRQC(0x0b)); //interrupt on either edge
@@ -145,9 +145,7 @@ int executeUltrasonic(void){
 			tooCloseFlag = 0;
 		}
 
-		
 		startEchoSignal = 0;
 		finishEchoSignal = 1;
-
 	}
 }
