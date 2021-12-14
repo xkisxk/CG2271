@@ -6,5 +6,6 @@ The aim of the project is to design a RTOS-based robotic car that will be contro
 3. Move the car in multiple directions. 
 4. Control the various LED’s according to the car’s status
 5. Play different sounds/tunes according to the cars status.
+6. Execute self-driving functionality around an obstacle when activated
 
 The KL25Z Freedom Development Board was used as the main RTOS platform. 
